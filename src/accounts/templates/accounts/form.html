@@ -1,5 +1,10 @@
-<form method='POST' action='.'> {% csrf_token %}
+<!-- <h1>Welcome {{ user.first_name }}!!</h1> -->
+
+<form class="form-inline" method='POST' action='.'> {% csrf_token %}
+<div class="form-group">
 {{ form.as_p }}
 <input type='submit' value='Submit'>
-
+</div>
 </form>
+
+

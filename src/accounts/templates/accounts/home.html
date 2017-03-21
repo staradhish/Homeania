@@ -1,13 +1,34 @@
 {% extends "accounts/base.html" %}
 
 {% block content %}
+	<div class="col-md-12">
+	<h1>Welcome {{ user.first_name }}!!</h1><br>
+	</div>
+	<!-- <button name="button" class = value="OK" type="button"><a href="{% url 'logout' %}">Logout</a></button> -->
+	<!-- <div class="col-md-6 col-md-push-4">
+	<a href="{% url 'logout' %}" class="btn btn-info btn-lg">
+	<span class="glyphicon glyphicon-log-out"></span> Log out
+	</a> -->
 
-<h1>Welcome {{ user.first_name }}!!</h1>
+	<div class='heading2'>
+		<h2><b>Choose the level you would like to work on</b></h2>
+	</div>	
+	
+	<div class='col-md-4 col-md-offset-1 level'>
+	<h3><a href="{% url 'select_exam' level_id=1 %}"><b>LEVEL 1 </b><br> Introduction to our system and real estate photography Completion of this course will allow you to shoot our standard orders </h3></a>
+	</div>
 
+	<div class='col-md-4 col-md-offset-1 level'>
+	<h3><a href="{% url 'select_exam' level_id=2 %}"><b>LEVEL 2 </b><br> Real Estate Videography and HDR p hotography Completion of  this level will allow you to shoot our deluxe package </h3></a>
+	</div>
+	
+	<div class='col-md-4 col-md-offset-1 level'>
+	<h3><a href="{% url 'select_exam' level_id=3 %}"><b>LEVEL 3</b> <br> Aerial Photography and beyond. Completion of this level will allow you to shoot our aerial add-on package. </h3></a>
+	</div>
 
-<button name="button" value="OK" type="button"><a href="{% url 'logout' %}">Logout</a></button>
+<!-- 			<button name="button" value="OK" type="button"><a href="{% url 'logout' %}">Logout</a></button> -->
 
-<button name="button" value="OK" type="button"><a href="{% url 'ques_list' %}">Level  {{ user.level_id }}</a></button>
+<!-- 			<button name="button" value="OK" type="button"><a href="{% url 'ques_list' level_id=1%}">Level  {{ user.level_id }}</a></button> -->
 
 
 {% endblock %}

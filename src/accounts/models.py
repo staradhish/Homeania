@@ -8,6 +8,8 @@ from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser
 )
 
+#from .views.save_answer import (user, user_ans, user_ques, user_level,x)
+
 
 """
 User table (id, first_name, last_name, email, password, joining_date, level_id) --->> auth_user default django table
@@ -51,12 +53,30 @@ class Answer(models.Model):
 
 class UserInput(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    level = models.ForeignKey(Level, default=1)
+    question = models.ForeignKey(Question, default=1)
     user_answer = models.IntegerField(Answer)
     score = models.IntegerField(default=0)
-
+    
     def __unicode__(self):
         return "{0}, {1}".format(self.user, self.user_answer)
 
+
+    # def save(self, *args, **kwargs):
+    #     pass
+    #     obj, created = UserInput.objects.get_or_create(
+    #                     user_id=user, question_id=user_ques,
+    #                     defaults={'score': x,
+    #                             'level_id':user_level,
+    #                             'user_answer':user_ans})
+
+
+    # b = UserInput(user_id=request.user.id, 
+    #               user_answer=user_ans, 
+    #               score=x,
+    #               level_id=user_level,
+    #               question_id=user_ques
+    #               )
 
 class MyUserManager(BaseUserManager):
     def create_user(self, email, date_of_birth, password=None):

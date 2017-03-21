@@ -18,13 +18,23 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.views.decorators.csrf import csrf_exempt
 
-from accounts.views import user_login, save_answer, user_logout, home, ques_list,take_quiz
+from accounts.views import (user_login, get_score, save_answer, user_logout, home, ques_list,take_quiz, select_exam)
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', home, name='home'),
     url(r'^login/$', user_login, name='login'),
     url(r'^logout/$', user_logout, name='logout'),
-    url(r'^qlist/$', ques_list, name='ques_list'),
+    url(r'^exam/(?P<level_id>\d+)$', select_exam, name='select_exam'),
+    url(r'^qlist/(?P<level_id>\d+)$', ques_list, name='ques_list'),
     url(r'^test/$', csrf_exempt(save_answer), name='take_quiz'),
+    url(r'^score/$', get_score, name='get_score'),
 ]
+
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

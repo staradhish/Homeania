@@ -6,7 +6,7 @@
 
 {% for question in questions %}
 	<div>
-	<h1><b>{{ question.id }}.</b> {{ question.question_content }}</h1>
+	<h1><b><span value="{{ question.id }}" id="marked_ques">{{ question.id }}</span>.</b> {{ question.question_content }}</h1>
 	
     <form>
 	{% for answer in question.qus.all %}
@@ -16,52 +16,55 @@
 	</div><br>
 	<input type="button" onclick="get_answer()" value="Submit">
 	</form>
+	<button name="button" value="OK" type="button"><a href="{% url 'logout' %}">Logout</a></button>
 {% endfor %}
 
 <script>
 function get_answer() {
    console.log("get_answer claase");
    var answer = $('input[name="marked_answer"]:checked').val();
+   // var ques = $('span[name="marked_ques"]').val();
+   var ques = $('#marked_ques').attr('value')
+   var pathname = window.location.pathname.split("/");
+   var level = pathname[pathname.length-1];
    console.log("==== you select ===", answer)
+   console.log("==== you question ===", ques)
+   console.log("==== you question ===", level)
 
    $.ajax({
   type: "POST",
-  beforeSend: function (request)
-            {
-                request.setRequestHeader("X-CSRF-TOKEN", "${_csrf.token}");
-            },
   url: '/test/',
-  data: {answer : answer},
-
+  data: {csrfmiddlewaretoken: '{{csrf_token}}',
+  	answer : answer, ques:ques, level:level
+  },
+   dataType : "json",
 });
 }
+
 </script>
 
 
 {% if questions.has_other_pages %}
   <ul class="pagination">
-    {% if questions.has_previous %}
+    <!-- {% if questions.has_previous %}
       <li><a href="?page={{ questions.previous_page_number }}">&laquo;</a></li>
     {% else %}
       <li class="disabled"><span>&laquo;</span></li>
-    {% endif %}
+    {% endif %} -->
     {% for i in questions.paginator.page_range %}
-      {% if questions.number == i %}
+<!--       {% if questions.number == i %}
         <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
       {% else %}
         <li><a href="?page={{ i }}">{{ i }}</a></li>
-      {% endif %}
+      {% endif %} -->
     {% endfor %}
     {% if questions.has_next %}
-      <li><a href="?page={{ questions.next_page_number }}">&raquo;</a></li>
+      <li><a href="?page={{ questions.next_page_number }}">Next</a></li>
     {% else %}
-      <li class="disabled"><span>&raquo;</span></li>
+      <li ><span><a href="{% url 'get_score' %}">Check Score</a></span></li>
     {% endif %}
   </ul>
 {% endif %}
-
-<button name="button" value="OK" type="button"><a href="{% url 'logout' %}">Logout</a></button>
-
 
 
 {% endblock %}
