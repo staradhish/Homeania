@@ -10,7 +10,7 @@ level={{level}}
 		<button type="button" class="btn btn-info">Download this section</button>
 		</div>
 		<br>
-		<div class='info '>
+		<div class='info col-md-10 col-md-offset-1'>
 		<p> <b> &nbsp; Introduction to our system and real estate photography Introduction to our system and real estate photography Introduction to our system and real estate photography Introduction to our system and real estate photography Introduction to our system and real estate photography Introduction to our system and real estate photography Introduction to our system and real estate photography Introduction to our system and real estate photography Introduction to our system and real estate photography </p>
 		<p> Introduction to our system and real estate photography Introduction to our system and real estate photography Introduction to our system and real estate photography </b> </p>
 		<br>
@@ -19,7 +19,7 @@ level={{level}}
 		<div class='quiz'>
 		<a href="{% url 'ques_list' level_id=level %}"><button type="button" class="btn btn-primary btn-lg col-md-2 col-md-offset-3">Quiz</button></a>
 
-		<button type="button" class="btn btn-primary btn-lg col-md-2 col-md-offset-3">Practical Test</button>
+		<a href="{% url 'practical_test' level_id=level %}"><button type="button" class="btn btn-primary btn-lg col-md-2 col-md-offset-3">Practical Test</button></a>
 		
 		</div>
 

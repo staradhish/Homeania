@@ -127,7 +127,9 @@ def take_quiz(level):
             print choices
     #return HttpResponseRedirect("/login")
 
-
-
-    
     return type('TakeQuizForm', (forms.BaseForm,), {'base_fields': fields})
+
+
+class ImageUploadForm(forms.Form):
+    image = forms.ImageField()
+    description = forms.CharField(widget=forms.Textarea)

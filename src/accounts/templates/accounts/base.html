@@ -1,5 +1,5 @@
 {% load static %}
-
+{% load bootstrap %}
 <!DOCTYPE html>
 
 <html>
@@ -22,21 +22,24 @@
 
 	</head>
 	<body>
-		<div class='col-md-8 col-md-offset-2'>
+		<div class='col-md-12'>
 			<nav class="navbar navbar-inverse">
 			<div class="container-fluid">
 			<div class="navbar-header">
 			<a class="navbar-brand" href="#">Homeania</a>
 			</div>
 			<ul class="nav navbar-nav">
-			<li class="active"><a href="#">Home</a></li>
+			{% if user.is_authenticated %}
+			<li><a href="{% url 'home' %}">Home</a></li>
+			<li><a href="{% url 'get_score' %}">Score</a></li>
+			{% endif %}
 			</ul>
 
 			<ul class="nav navbar-nav navbar-right">
 			{% if user.is_authenticated %}
 			<li><a href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
 			{% else %}
-			<li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+			<li><a href="{% url 'home' %}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
 			{% endif %}
 			</ul>
 			</div>
@@ -45,8 +48,8 @@
 			<div class="jumbotron">
 			<div class="heading">
 
-			<h1> <span class="title-color">home</span>ania</h1>
-			<p>real estate marketing services</p>
+			<h1 id="title-font"> <span class="title-color">home</span>ania</h1>
+			<p id="title-font-small">real estate marketing services</p>
 			</div>
 			</div>
 			<div class="jumbotron some">
@@ -57,8 +60,9 @@
 			{% block content %}
 
 			{% endblock %}
+			<br><br>
+			<!-- <div id="footer"><p>Legal text at the bottom of all pages</p></div> -->
 
-			<div id="footer">SOme Legal text</div>
 		</div>
 	</body>
 

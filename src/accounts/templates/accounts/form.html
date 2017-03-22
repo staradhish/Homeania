@@ -1,10 +1,11 @@
-<!-- <h1>Welcome {{ user.first_name }}!!</h1> -->
+{% load bootstrap %}
 
-<form class="form-inline" method='POST' action='.'> {% csrf_token %}
+<form class=class="form-horizontal" role='form'method='POST' action='.'> {% csrf_token %}
 <div class="form-group">
-{{ form.as_p }}
-<input type='submit' value='Submit'>
+ {{ form|bootstrap }}
+
+  <br>
+
+<button type="submit" class="btn btn-primary btn-lg">Submit</button>
 </div>
 </form>
-
-

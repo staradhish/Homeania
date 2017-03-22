@@ -43,13 +43,6 @@ class Answer(models.Model):
     def __unicode__(self):
         return self.answer_content
 
-# class result(models.Model):
-#     user
-#     level
-#     qus
-#     ans
-#     result = bool
-
 
 class UserInput(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
@@ -62,21 +55,17 @@ class UserInput(models.Model):
         return "{0}, {1}".format(self.user, self.user_answer)
 
 
-    # def save(self, *args, **kwargs):
-    #     pass
-    #     obj, created = UserInput.objects.get_or_create(
-    #                     user_id=user, question_id=user_ques,
-    #                     defaults={'score': x,
-    #                             'level_id':user_level,
-    #                             'user_answer':user_ans})
+class ImageDescModel(models.Model):
+    """Image upload form."""
+    image = models.ImageField(upload_to='images/')
+    description = models.TextField()
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    level = models.ForeignKey(Level, default=1)
+    upload_time = models.DateTimeField(auto_now_add=True)
 
+    def __unicode__(self):
+        return self.description
 
-    # b = UserInput(user_id=request.user.id, 
-    #               user_answer=user_ans, 
-    #               score=x,
-    #               level_id=user_level,
-    #               question_id=user_ques
-    #               )
 
 class MyUserManager(BaseUserManager):
     def create_user(self, email, date_of_birth, password=None):
@@ -113,6 +102,10 @@ class MyUserManager(BaseUserManager):
 
 
 class MyUser(AbstractBaseUser):
+    LEVEL_CHOICES = (
+        ('Y', 'Yes'),
+        ('N', 'No'),
+    )
     email = models.EmailField(
         verbose_name='email address',
         max_length=255,
@@ -126,8 +119,10 @@ class MyUser(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
-
-
+    level_one = models.CharField(max_length=1, choices=LEVEL_CHOICES, default='N')
+    level_two= models.CharField(max_length=1, choices=LEVEL_CHOICES, default='N')
+    level_three = models.CharField(max_length=1, choices=LEVEL_CHOICES, default='N')
+ 
     objects = MyUserManager()
 
     USERNAME_FIELD = 'email'

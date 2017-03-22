@@ -1,12 +1,13 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse,HttpResponseForbidden
 from django.contrib.auth import login, logout, get_user_model
 # Create your views here.
 
 from django.db.models import Sum
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from .forms import UserLoginForm, take_quiz
-from .models import Question, Answer, Level, UserInput
+from .forms import UserLoginForm, take_quiz, ImageUploadForm
+from .models import Question, Answer, Level, UserInput, ImageDescModel
+from itertools import chain
 
 User = get_user_model()
 
@@ -58,12 +59,33 @@ def user_logout(request):
 												  "choice_list": choice_list})
 """
 
+# def ques_list_old(request, level_id):
+# 	print level_id
+# 	#print request.user.level_id
+# 	user_level = level_id
+# 	q = Question.objects.filter(level_id = user_level)
+# 	question_list = q.prefetch_related('qus')
+# 	print question_list
+# 	page = request.GET.get('page', 1)
+# 	paginator = Paginator(question_list, 1)
+# 	try:
+# 		questions = paginator.page(page)
+# 	except PageNotAnInteger:
+# 		questions = paginator.page(1)
+# 	except EmptyPage:
+# 		questions = paginator.page(paginator.num_pages)
+# 	return render(request, "accounts/quiz.html", {"questions":questions})
+
+
 def ques_list(request, level_id):
-	print level_id
-	#print request.user.level_id
-	user_level = level_id
-	q = Question.objects.filter(level_id = user_level)
+	a = list(UserInput.objects.filter(
+		user_id=request.user.id, level_id=level_id).values_list('question_id'))
+	x = list(chain.from_iterable(a))
+	q = Question.objects.filter(level_id=level_id).exclude(id__in=x)
+
 	question_list = q.prefetch_related('qus')
+	print question_list
+
 	page = request.GET.get('page', 1)
 	paginator = Paginator(question_list, 1)
 	try:
@@ -73,11 +95,6 @@ def ques_list(request, level_id):
 	except EmptyPage:
 		questions = paginator.page(paginator.num_pages)
 	return render(request, "accounts/quiz.html", {"questions":questions})
-
-
-def remaining_ques(request, level_id):
-	pass
-
 
 # def take_quiz(request):
 # 	user_level = 2
@@ -128,7 +145,16 @@ def save_answer(request):
 
 def get_score(request):
 	user = request.user.id
-	#user_level = request.user.level_id
+	total_ques_1 = Question.objects.filter(level_id=1)
+	total_ques_2 = Question.objects.filter(level_id=2)
+	total_ques_3 = Question.objects.filter(level_id=3)
+	prac_test_exist_1 = ImageDescModel.objects.filter(user_id=user, level_id=1).exists()
+	prac_test_exist_2 = ImageDescModel.objects.filter(user_id=user, level_id=2).exists()
+	prac_test_exist_3 = ImageDescModel.objects.filter(user_id=user, level_id=3).exists()
+	user_level_1 = User.objects.filter(id=user).values('level_one')[0]['level_one']
+	user_level_2 = User.objects.filter(id=user).values('level_two')[0]['level_two']
+	user_level_3 = User.objects.filter(id=user).values('level_three')[0]['level_three']
+
 	s1 = UserInput.objects.filter(
 		user_id=user, level_id=1
 		).aggregate(Sum('score'))['score__sum']
@@ -138,9 +164,42 @@ def get_score(request):
 	s3 = UserInput.objects.filter(
 		user_id=user, level_id=3
 		).aggregate(Sum('score'))['score__sum']	
-	#return s
-	#return HttpResponse('Your Score is :%s' % s)
-	return render(request, "accounts/score.html", {"s1":s1, "s2":s2, "s3":s3})
+
+	if prac_test_exist_1 == True:
+		p1 = "Finished"
+	else:
+		p1 = "Not Finished"
+	if prac_test_exist_2 == True:
+		p2 = "Finished"
+	else:
+		p2 = "Not Finished"
+	if prac_test_exist_3 == True:
+		p3 = "Finished"
+	else:
+		p3 = "Not Finished"
+
+	if s1 == total_ques_1 and prac_test_exist_1==True:
+		l1 = "Completed"
+	else:
+		l1 = "Not Completed"
+	if s2 == total_ques_2 and prac_test_exist_2==True:
+		l2 = "Completed"
+	else:
+		l2 = "Not Completed"
+	if s3 == total_ques_3 and prac_test_exist_3==True:
+		l3 = "Completed"
+	else:
+		l3 = "Not Completed"
+
+	context = {"s1":s1, "s2":s2, "s3":s3,
+				"p1":p1, "p2":p2, "p3":p3,
+				"l1":l1, "l2":l2, "l3":l3,
+				"user_level_1":user_level_1,
+				"user_level_2":user_level_2,
+				"user_level_3":user_level_3,
+				}
+				
+	return render(request, "accounts/score.html", context)
 
 
 def select_exam(request, level_id):
@@ -149,11 +208,31 @@ def select_exam(request, level_id):
 	return render(request, "accounts/select_test.html", {"level":level}) 
 
 
+def practical_test(request, level_id):
+	level = level_id
+	print level
+	form = ImageUploadForm()
+	return render(request, "accounts/practical_test.html", {"level":level, "form":form})
 
 # Will change user level in User table 
 # and send email to user
+def level_complete(request):
+	clickval = request.POST.get('clicked_value')
+	print clickval
+	User.objects.filter(id=request.user.id).update(level_one='Y')
+	return render(request, "accounts/score.html", {})
 
-		
 
-
+def upload_pic(request,level_id):
+    if request.method == 'POST':
+        form = ImageUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            image = form.cleaned_data['image']
+            description = form.cleaned_data['description']
+            obj, created = ImageDescModel.objects.get_or_create(
+					user_id=request.user.id, level_id=level_id,
+					defaults={'description': description,
+							'image':image,})
+            return HttpResponse('image upload success')
+    return HttpResponseForbidden('allowed only via POST')
 

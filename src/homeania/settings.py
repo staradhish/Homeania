@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'accounts',
+    'bootstrapform',
 ]
 
 AUTH_USER_MODEL = 'accounts.MyUser'

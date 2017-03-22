@@ -1,10 +1,5 @@
 from django.contrib import admin
 
-# Register your models here.
-#from .models import Profile
-#
-#admin.site.register(Profile)
-
 from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import Group
@@ -67,15 +62,16 @@ class UserAdmin(BaseUserAdmin):
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
-    list_display = ('email', 'first_name','date_of_birth', 'level_id', 'is_admin')
+    list_display = ('email', 'first_name','level_one', 'level_two', 'level_three','is_admin')
     list_filter = ('is_admin',)
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name','date_of_birth','joining_date', 'level_id')}),
+        ('Personal info', {'fields': ('first_name', 'last_name','date_of_birth','joining_date', )}),
+        ('Traning Status', {'fields': ('level_one', 'level_two', 'level_three')}),
         ('Permissions', {'fields': ('is_admin', 'is_staff')}),
         ('Access', {'fields': ('is_active', )}), 
     )
-    readonly_fields = ['joining_date']
+    readonly_fields = ['joining_date', 'level_one', 'level_two', 'level_three']
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
     # overrides get_fieldsets to use this attribute when creating a user.
     add_fieldsets = (

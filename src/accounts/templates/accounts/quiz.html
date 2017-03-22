@@ -1,23 +1,42 @@
 {% extends "accounts/base.html" %}
 
-
+{% load bootstrap %}
 
 {% block content %}
-
+<div class="radio col-md-11 col-md-offset-1"> 
 {% for question in questions %}
 	<div>
 	<h1><b><span value="{{ question.id }}" id="marked_ques">{{ question.id }}</span>.</b> {{ question.question_content }}</h1>
 	
     <form>
+    
 	{% for answer in question.qus.all %}
-	<div> 
+	   <div class="radio">
 			<input type="radio" value="{{ answer.id}}" name="marked_answer">{{ answer.answer_content }}
 	{% endfor %} 
+  </div>
 	</div><br>
-	<input type="button" onclick="get_answer()" value="Submit">
-	</form>
-	<button name="button" value="OK" type="button"><a href="{% url 'logout' %}">Logout</a></button>
+
+
+	<button type="button" class="btn btn-default" onclick="get_answer()" value="Submit">Submit</button>
+  
+  </form>
+  </div>
+
+  {% if questions.has_other_pages %}
+  <ul class="pagination">
+    {% if questions.has_next %}
+      <button class="btn btn-default"><a href="?page={{ questions.next_page_number }}">Next</a></button>
+    {% else %}
+      <button class="btn btn-default"><span><a href="{% url 'get_score' %}">Check Score</a></span></button>
+    {% endif %}
+  </ul>
+{% endif %}
+
+
+
 {% endfor %}
+
 
 <script>
 function get_answer() {
@@ -42,29 +61,5 @@ function get_answer() {
 }
 
 </script>
-
-
-{% if questions.has_other_pages %}
-  <ul class="pagination">
-    <!-- {% if questions.has_previous %}
-      <li><a href="?page={{ questions.previous_page_number }}">&laquo;</a></li>
-    {% else %}
-      <li class="disabled"><span>&laquo;</span></li>
-    {% endif %} -->
-    {% for i in questions.paginator.page_range %}
-<!--       {% if questions.number == i %}
-        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
-      {% else %}
-        <li><a href="?page={{ i }}">{{ i }}</a></li>
-      {% endif %} -->
-    {% endfor %}
-    {% if questions.has_next %}
-      <li><a href="?page={{ questions.next_page_number }}">Next</a></li>
-    {% else %}
-      <li ><span><a href="{% url 'get_score' %}">Check Score</a></span></li>
-    {% endif %}
-  </ul>
-{% endif %}
-
 
 {% endblock %}
