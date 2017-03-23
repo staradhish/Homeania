@@ -18,7 +18,7 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.views.decorators.csrf import csrf_exempt
 
-from accounts.views import (user_login, level_complete, practical_test,upload_pic, get_score, save_answer, user_logout, home, ques_list,take_quiz, select_exam)
+from accounts.views import (user_login, retake_level, level_complete, practical_test,upload_pic, get_score, save_answer, user_logout, home, ques_list,take_quiz, select_exam)
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -34,6 +34,7 @@ urlpatterns = [
     url(r'^practical-test/(?P<level_id>\d+)$', practical_test, name='practical_test'),
     url(r'^upload/(?P<level_id>\d+)$', upload_pic, name='upload_pic'),    
     url(r'^testing/$', level_complete),
+    url(r'^retake/(?P<level_id>\d+)$', retake_level, name='retake_level')
 ]
 
 

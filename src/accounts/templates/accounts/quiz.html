@@ -12,54 +12,30 @@
     
 	{% for answer in question.qus.all %}
 	   <div class="radio">
-			<input type="radio" value="{{ answer.id}}" name="marked_answer">{{ answer.answer_content }}
-	{% endfor %} 
+			<input type="radio" value="{{ answer.id}}" name="marked_answer"><span id="radio_answer">{{ answer.answer_content }}</span>
+	{% endfor %}
   </div>
 	</div><br>
 
 
-	<button type="button" class="btn btn-default" onclick="get_answer()" value="Submit">Submit</button>
-  
   </form>
   </div>
 
-  {% if questions.has_other_pages %}
+{% if questions.has_other_pages %}
   <ul class="pagination">
     {% if questions.has_next %}
-      <button class="btn btn-default"><a href="?page={{ questions.next_page_number }}">Next</a></button>
+      <button type="button" class="btn btn-default" onclick="get_answer()" value="Submit">Submit</button>
+      <button class="btn btn-default"><a href="?page={{ questions.next_page_number|add:'-1' }}">Next</a></button>
+
     {% else %}
       <button class="btn btn-default"><span><a href="{% url 'get_score' %}">Check Score</a></span></button>
     {% endif %}
   </ul>
+{% else %}
+  <button type="button" class="btn btn-default" onclick="get_answer()" value="Submit">Submit</button>
+  <button class="btn btn-default"><span><a href="{% url 'get_score' %}">Check Score</a></span></button>
 {% endif %}
 
-
-
 {% endfor %}
-
-
-<script>
-function get_answer() {
-   console.log("get_answer claase");
-   var answer = $('input[name="marked_answer"]:checked').val();
-   // var ques = $('span[name="marked_ques"]').val();
-   var ques = $('#marked_ques').attr('value')
-   var pathname = window.location.pathname.split("/");
-   var level = pathname[pathname.length-1];
-   console.log("==== you select ===", answer)
-   console.log("==== you question ===", ques)
-   console.log("==== you question ===", level)
-
-   $.ajax({
-  type: "POST",
-  url: '/test/',
-  data: {csrfmiddlewaretoken: '{{csrf_token}}',
-  	answer : answer, ques:ques, level:level
-  },
-   dataType : "json",
-});
-}
-
-</script>
 
 {% endblock %}

@@ -43,6 +43,15 @@ INSTALLED_APPS = [
 
 AUTH_USER_MODEL = 'accounts.MyUser'
 
+NOTIFY_LEVEL_COMPLETE = "staradhish@gmail.com"
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'YourEmail'
+EMAIL_HOST_PASSWORD = 'YourPassword'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

@@ -8,26 +8,16 @@ from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser
 )
 
-#from .views.save_answer import (user, user_ans, user_ques, user_level,x)
-
-
-"""
-User table (id, first_name, last_name, email, password, joining_date, level_id) --->> auth_user default django table
-Level table(level_id, level_name)
-question table(question_id, question_content, level_id(FK))
-answer table(answer_id, answer_content, question_id(FK), is_correct)
-user_question_answer table( where we will save the last progress of user)
-"""
 
 class Level(models.Model):
-    #myuser_id = models.ForeignKey(settings.AUTH_USER_MODEL)
+    """All Levels are saved here"""
     level_name = models.CharField(max_length=120)
-
     def __unicode__(self):
         return self.level_name
 
 
 class Question(models.Model):
+    """All Questions are saved here"""
     question_content = models.TextField()
     level = models.ForeignKey(Level)
 
@@ -36,6 +26,7 @@ class Question(models.Model):
 
 
 class Answer(models.Model):
+    """All options are saved here"""
     answer_content = models.TextField()
     question = models.ForeignKey(Question, related_name="qus")
     is_correct = models.BooleanField(default=False)
@@ -45,6 +36,7 @@ class Answer(models.Model):
 
 
 class UserInput(models.Model):
+    """User Inputs are saved here"""
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     level = models.ForeignKey(Level, default=1)
     question = models.ForeignKey(Question, default=1)
@@ -115,7 +107,6 @@ class MyUser(AbstractBaseUser):
     last_name = models.CharField(max_length=120, null=True, blank=True)
     date_of_birth = models.DateField()
     joining_date = models.DateTimeField(auto_now=False, auto_now_add=True)
-    level = models.ForeignKey(Level, default=1)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
@@ -136,7 +127,7 @@ class MyUser(AbstractBaseUser):
         # The user is identified by their email address
         return self.email
 
-    def __unicode__(self):              # __unicode__ on Python 2
+    def __unicode__(self):
         return self.email
 
     def has_perm(self, perm, obj=None):

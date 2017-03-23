@@ -142,3 +142,9 @@ input[type=text]:focus {
 #title-font-small{
 	font-size: 50px;
 }
+
+.bold {
+	font-weight: bold;
+	color: red;
+
+}

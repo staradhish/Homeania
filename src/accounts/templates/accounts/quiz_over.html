@@ -1,0 +1,11 @@
+{% extends "accounts/base.html" %}
+
+{% block content %}
+<h1>{{text}}</h1><br>
+<a href="{% url 'get_score' %}"><button class="btn btn-default btn-lg"><span>Check Score</span></button></a>
+<br><br>
+
+<button class="btn btn-default btn-lg" onclick="level_add_function()"><span>Retake Level</span></button>
+
+
+{% endblock %}

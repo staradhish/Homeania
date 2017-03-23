@@ -5,6 +5,7 @@
 <br>
 <h1>Please find your level wise score below:</h1><br><br>
 
+
 <table class="table table-striped table-bordered text-center">
   <thead>
     <tr>
@@ -19,19 +20,19 @@
       <th class="text-center" scope="row">1</th>
       <td>{{ s1 }}</td>
       <td>{{ p1 }}</td>
-      <td><button onclick="print_something(this.value)" value=1 id="level_change_1">{{ l1 }}</button></td>
+      <td><button onclick="level_value(this.value)" value=1 id="level_change_1">{{ l1 }}</button></td>
     </tr>
     <tr>
       <th class="text-center" scope="row">2</th>
       <td>{{ s2 }}</td>
       <td>{{ p2 }}</td> 
-      <td><button onclick="print_something(this.value)" value=2 id="level_change_2">{{ l2 }}</button></td>
+      <td><button onclick="level_value(this.value)" value=2 id="level_change_2">{{ l2 }}</button></td>
     </tr>
     <tr>
       <th class="text-center" scope="row">3</th>
       <td>{{ s3 }}</td>
       <td>{{ p3 }}</td>
-      <td><button onclick="print_something(this.value)" value=3 id="level_change_3">{{ l3 }}</button></td>
+      <td><button onclick="level_value(this.value)" value=3 id="level_change_3">{{ l3 }}</button></td>
 
     </tr>
   </tbody>
@@ -55,6 +56,7 @@ $(document).ready(function(){
 
 	if ("{{l2}}"=== "Completed" && "{{user_level_2}}" === "N"){
 		$('#level_change_2').addClass('btn-primary');
+		$('#level_change_2').text("Click here to complete Level");
 	}
 	else if ("{{l2}}"=== "Completed" && "{{user_level_2}}" === "Y"){
 		$('#level_change_2').attr("disabled", true);
@@ -67,6 +69,7 @@ $(document).ready(function(){
 
 	if ("{{l3}}"=== "Completed" && "{{user_level_3}}" === "N"){
 		$('#level_change_3').addClass('btn-primary');
+		$('#level_change_3').text("Click here to complete Level");
 	}
 	else if ("{{l3}}"=== "Completed" && "{{user_level_3}}" === "Y"){
 		$('#level_change_3').attr("disabled", true);
@@ -79,7 +82,7 @@ $(document).ready(function(){
 });
 
 
-function print_something(clicked_value) {
+function level_value(clicked_value) {
 	console.log(clicked_value)
 	 location.reload(true);
 

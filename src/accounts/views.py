@@ -5,20 +5,23 @@ from django.contrib.auth import login, logout, get_user_model
 
 from django.db.models import Sum
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.conf import settings
+from django.core.mail import send_mail
 from .forms import UserLoginForm, take_quiz, ImageUploadForm
 from .models import Question, Answer, Level, UserInput, ImageDescModel
 from itertools import chain
 
 User = get_user_model()
 
+# User Home Page
 def home(request):
 	if request.user.is_authenticated():
-		print request.user.level_id
+
 		return render(request, "accounts/home.html", {})
 	else:
 		return HttpResponseRedirect("/login")
 
-
+#User Login
 def user_login(request, *args, **kwargs):
 	form = UserLoginForm(request.POST or None)
 	if form.is_valid():
@@ -28,94 +31,48 @@ def user_login(request, *args, **kwargs):
 	return render(request, "accounts/login.html", {"form": form})
 
 
+# User Logout
 def user_logout(request):
 	logout(request)
 	return HttpResponseRedirect("/login")
 
 
-"""def ques_list(request):
-	user_level = request.user.level_id
-	question_list = Question.objects.filter(level_id = user_level)
-	for question in question_list.values():
-		x = question['id']
-	# x = 1
-		choices = []
-		print question
-		# for a in question.answer_set.all():
-		# 	choices.append(a)
-		# 	print choices
-		choice_list = Answer.objects.filter(question_id = x)
-
-	# page = request.GET.get('page', 1)
-	# paginator = Paginator(question_list, 1)
-	# try:
-	# 	questions = paginator.page(page)
-	# except PageNotAnInteger:
-	# 	questions = paginator.page(1)
-	# except EmptyPage:
-	# 	questions = paginator.page(paginator.num_pages)
-
-	return render(request, "accounts/quiz.html", {"question_list":question_list, 
-												  "choice_list": choice_list})
-"""
-
-# def ques_list_old(request, level_id):
-# 	print level_id
-# 	#print request.user.level_id
-# 	user_level = level_id
-# 	q = Question.objects.filter(level_id = user_level)
-# 	question_list = q.prefetch_related('qus')
-# 	print question_list
-# 	page = request.GET.get('page', 1)
-# 	paginator = Paginator(question_list, 1)
-# 	try:
-# 		questions = paginator.page(page)
-# 	except PageNotAnInteger:
-# 		questions = paginator.page(1)
-# 	except EmptyPage:
-# 		questions = paginator.page(paginator.num_pages)
-# 	return render(request, "accounts/quiz.html", {"questions":questions})
-
-
+# To get the list if Questions in the particular level along with options
 def ques_list(request, level_id):
 	a = list(UserInput.objects.filter(
 		user_id=request.user.id, level_id=level_id).values_list('question_id'))
+	print a
 	x = list(chain.from_iterable(a))
-	q = Question.objects.filter(level_id=level_id).exclude(id__in=x)
+	print x
+	q = Question.objects.filter(level_id=level_id).exclude(id__in=x).order_by('id')
+	print q
+	if not q:
+		print "questions over"
+		text = "You have attempted all the questions"
+		return render(request, "accounts/quiz_over.html", {"text":text})
 
-	question_list = q.prefetch_related('qus')
-	print question_list
+	else:	
+		question_list = q.prefetch_related('qus')
+		print question_list
 
-	page = request.GET.get('page', 1)
-	paginator = Paginator(question_list, 1)
-	try:
-		questions = paginator.page(page)
-	except PageNotAnInteger:
-		questions = paginator.page(1)
-	except EmptyPage:
-		questions = paginator.page(paginator.num_pages)
-	return render(request, "accounts/quiz.html", {"questions":questions})
-
-# def take_quiz(request):
-# 	user_level = 2
-# 	print user_level
-# 	level = Level.objects.filter(id = user_level)
-# 	for question in level:
-# 		fields = {}
-# 		questions = question.question_set.all()
-# 		for answer in questions:
-# 			field_name = "question_%d" %question.id
-# 			choices = []
-# 			for a in answer.answer_set.all():
-# 				choices.append((a.id, a.answer_content,))
-# 			print choices
-# 	# return render(request, "accounts/quiz.html", {"question_list":question_list, 
-# 	# 											  "choice_list": choice_list})
-
-# 	return HttpResponseRedirect("/login")
-# 	#return type('TakeQuizForm', (forms.BaseForm,), {'base_fields': fields})
+		page = request.GET.get('page')
+		print page
+		paginator = Paginator(question_list, 1)
+		print paginator
+		try:
+			questions = paginator.page(page)
+			print "try"
+		except PageNotAnInteger:
+			questions = paginator.page(1)
+			print "except"
+		except EmptyPage:
+			questions = paginator.page(paginator.num_pages)
+			print "empty page"
+		print questions
+		return render(request, "accounts/quiz.html", {"questions":questions})
 
 
+# Save Answers to the database
 def save_answer(request):
 	user = request.user.id
 	user_ans = request.POST.get('answer')
@@ -127,22 +84,15 @@ def save_answer(request):
 		x = 1
 	else:
 		x = 0
-
-	print "=="*30
-	print user, user_level, user_ques, user_ans, x
-	print "=="*30
 	obj, created = UserInput.objects.update_or_create(
 					user_id=user, question_id=user_ques,
 					defaults={'score': x,
 							'level_id':user_level,
 							'user_answer':user_ans})
-	print "=="*30
-	print obj, created
-	print "=="*30
-
 	return HttpResponseRedirect("/")
 
 
+#Calculate Score for User and show the status of level completion.
 def get_score(request):
 	user = request.user.id
 	total_ques_1 = Question.objects.filter(level_id=1)
@@ -163,12 +113,16 @@ def get_score(request):
 		).aggregate(Sum('score'))['score__sum']
 	s3 = UserInput.objects.filter(
 		user_id=user, level_id=3
-		).aggregate(Sum('score'))['score__sum']	
+		).aggregate(Sum('score'))['score__sum']
+	print user
+	print s1,s2,s3	
+	print prac_test_exist_1, prac_test_exist_2, prac_test_exist_3
 
 	if prac_test_exist_1 == True:
 		p1 = "Finished"
 	else:
 		p1 = "Not Finished"
+
 	if prac_test_exist_2 == True:
 		p2 = "Finished"
 	else:
@@ -186,7 +140,7 @@ def get_score(request):
 		l2 = "Completed"
 	else:
 		l2 = "Not Completed"
-	if s3 == total_ques_3 and prac_test_exist_3==True:
+	if s3 == total_ques_2 and prac_test_exist_3==True:
 		l3 = "Completed"
 	else:
 		l3 = "Not Completed"
@@ -202,27 +156,22 @@ def get_score(request):
 	return render(request, "accounts/score.html", context)
 
 
+# Select Quiz or Practical Test
 def select_exam(request, level_id):
 	level = level_id
 	print level
 	return render(request, "accounts/select_test.html", {"level":level}) 
 
 
+# Upload picture and add description for Practical Test
 def practical_test(request, level_id):
 	level = level_id
 	print level
 	form = ImageUploadForm()
 	return render(request, "accounts/practical_test.html", {"level":level, "form":form})
 
-# Will change user level in User table 
-# and send email to user
-def level_complete(request):
-	clickval = request.POST.get('clicked_value')
-	print clickval
-	User.objects.filter(id=request.user.id).update(level_one='Y')
-	return render(request, "accounts/score.html", {})
 
-
+# Save the uploaded picture and desription to the database
 def upload_pic(request,level_id):
     if request.method == 'POST':
         form = ImageUploadForm(request.POST, request.FILES)
@@ -235,4 +184,36 @@ def upload_pic(request,level_id):
 							'image':image,})
             return HttpResponse('image upload success')
     return HttpResponseForbidden('allowed only via POST')
+
+
+# If User wants to retake level
+def retake_level(request, level_id):
+	level = level_id
+	user = request.user.id
+	UserInput.objects.filter(user_id=user, level_id=level).delete()
+	return HttpResponseRedirect("/qlist/" + level)
+
+
+# Will change user level in User table 
+# and send email to user
+def level_complete(request):
+	clickval = request.POST.get('clicked_value')
+	print clickval
+	if clickval == '1':
+		User.objects.filter(id=request.user.id).update(level_one='Y')
+	elif clickval == '2':
+		User.objects.filter(id=request.user.id).update(level_two='Y')
+	else:
+		User.objects.filter(id=request.user.id).update(level_three='Y')
+
+	print settings.NOTIFY_LEVEL_COMPLETE
+	send_mail(
+		'Level %s - Completed' % (clickval),
+		'Congratulations on finishing this level.',
+		'staradhish@gmail.com',
+		[settings.NOTIFY_LEVEL_COMPLETE],
+		fail_silently=False,
+		)
+	return render(request, "accounts/score.html", {})
+
 
